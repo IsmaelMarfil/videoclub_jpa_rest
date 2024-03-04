@@ -9,6 +9,8 @@ import org.iesvdm.videoclub.repository.PeliculaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ListResourceBundle;
+import java.util.Optional;
 
 @Service
 public class CategoriaService {
@@ -45,5 +47,22 @@ public class CategoriaService {
                     return p;})
                 .orElseThrow(() -> new CategoriaNotFoundException(id));
     }
+
+    public List<Categoria> allByQueryFiltersStream(Optional<String> buscarOpcion, Optional<String> ordenarOpcional){
+        List<Categoria> resultado = null;
+    if(buscarOpcion.isPresent()){
+        resultado = categoriaRepository.findByNombreContainingIgnoreCase(buscarOpcion.get());
+    }
+    if(ordenarOpcional.isPresent()){
+           if(buscarOpcion.isPresent() && "asc".equalsIgnoreCase(ordenarOpcional.get())){
+               resultado = categoriaRepository.findByNombreContainingIgnoreCaseOrderByNombreAsc(buscarOpcion.get());
+           } else if (buscarOpcion.isPresent() && "desc".equalsIgnoreCase(ordenarOpcional.get())) {
+               resultado = categoriaRepository.findByNombreContainingIgnoreCaseOrderByNombreDesc(buscarOpcion.get());
+           }
+    }
+    return resultado;
+
+    }
+
 
 }
