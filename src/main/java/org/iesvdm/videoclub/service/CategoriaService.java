@@ -1,16 +1,19 @@
 package org.iesvdm.videoclub.service;
 
 import org.iesvdm.videoclub.domain.Categoria;
+import org.iesvdm.videoclub.domain.CategoriaDTO;
 import org.iesvdm.videoclub.domain.Pelicula;
 import org.iesvdm.videoclub.exception.CategoriaNotFoundException;
 import org.iesvdm.videoclub.exception.PeliculaNotFoundException;
 import org.iesvdm.videoclub.repository.CategoriaRepository;
 import org.iesvdm.videoclub.repository.PeliculaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.ListResourceBundle;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CategoriaService {
@@ -21,8 +24,16 @@ public class CategoriaService {
         this.categoriaRepository = categoriaRepository;
     }
 
-    public List<Categoria> all() {
-        return this.categoriaRepository.findAll();
+    public List<CategoriaDTO> all() {
+
+        List <Categoria> listaCat = this.categoriaRepository.findAll();
+
+        List<CategoriaDTO> listDTO = listaCat.stream()
+                .map(CategoriaDTO::new)
+                .toList();
+
+        return listDTO;
+
     }
 
     public Categoria save(Categoria categoria) {
@@ -63,6 +74,20 @@ public class CategoriaService {
     return resultado;
 
     }
+    public Map<String, Object> all(int pagina, int tamano){
+        Pageable paginado = PageRequest.of(pagina, tamano, Sort.by("id").ascending());
+        Page<Categoria> pageAll = this.categoriaRepository.findAll(paginado);
+
+        Map<String,Object> response = new HashMap<>();
+
+        response.put("categorias", pageAll.getContent());
+        response.put("currentPage", pageAll.getNumber());
+        response.put("totalItems", pageAll.getTotalElements());
+        response.put("totalPages", pageAll.getTotalPages());
+        return response;
+
+    }
+
 
 
 }
